@@ -1,5 +1,4 @@
 # Part 3
-
 class Schedule:
     def __init__(self, month, year):
         self.month = month
