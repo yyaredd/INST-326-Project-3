@@ -1,6 +1,5 @@
+
 # Part 3
-from datetime import datetime, timedelta
-import calendar
 
 class Schedule:
     def __init__(self, month, year):
@@ -12,12 +11,15 @@ class Schedule:
         days_in_month = self.get_days_in_month(self.month, self.year)
         for day in range(1, days_in_month + 1):
             date = datetime(self.year, self.month, day)
+            # Initialize shifts for each day
             self.shifts[date] = {"7:00 AM - 1:00 PM": None, "1:00 PM - 7:00 PM": None}
             dayOfWeek = date.strftime("%A")
 
             for shift in self.shifts[date]:
+                # Find caregivers who prefer or are available for this shift
                 preferred = [c for c in caregivers if c.get_availability(dayOfWeek, shift) == "preferred"]
                 available = [c for c in caregivers if c.get_availability(dayOfWeek, shift) == "available"]
+                # Assign caregiver, prioritizing preferred over available
                 self.shifts[date][shift] = preferred[0] if preferred else (available[0] if available else None)
 
     def display_html_calendar(self):
@@ -25,28 +27,34 @@ class Schedule:
         html_calendar = cal.formatmonth(self.year, self.month)
 
         for date, shifts in self.shifts.items():
+            # Get caregiver names for AM and PM shifts
             am_caregiver = shifts["7:00 AM - 1:00 PM"].name if shifts["7:00 AM - 1:00 PM"] else "Unassigned"
             pm_caregiver = shifts["1:00 PM - 7:00 PM"].name if shifts["1:00 PM - 7:00 PM"] else "Unassigned"
+            # Create content for each day in the calendar
             day_content = f"{date.day}<br>AM: {am_caregiver}<br>PM: {pm_caregiver}"
+            # Replace the day number with the full content in the HTML calendar
             html_calendar = html_calendar.replace(f'>{date.day}<', f'>{day_content}<')
 
         return html_calendar
 
     @staticmethod
     def get_days_in_month(month, year):
+        # Calculate the number of days in the given month
         if month == 12:
             return (datetime(year + 1, 1, 1) - datetime(year, month, 1)).days
         return (datetime(year, month + 1, 1) - datetime(year, month, 1)).days
 
-#Part 4
+# Part 4
 
 def generate_pay_report(self):
     pay_report = {}
     for date, shifts in self.shifts.items():
         for shift, caregiver in shifts.items():
             if caregiver and caregiver.pay_rate > 0:
+                # Initialize pay report for each caregiver
                 if caregiver.name not in pay_report:
                     pay_report[caregiver.name] = {"hours": 0, "pay": 0}
+                # Add hours and calculate pay for each shift
                 pay_report[caregiver.name]["hours"] += 6
                 pay_report[caregiver.name]["pay"] += 6 * caregiver.pay_rate
 
@@ -56,6 +64,7 @@ def generate_pay_report(self):
     report += "=" * 40 + "\n"
     for caregiver, data in pay_report.items():
         weekly_pay = data["pay"]
+        # Generate report for each caregiver
         report += f"{caregiver}:\n"
         report += f"  Hours: {data['hours']}\n"
         report += f"  Weekly Pay: ${weekly_pay:.2f}\n"
@@ -63,6 +72,7 @@ def generate_pay_report(self):
         total_weekly_pay += weekly_pay
         total_monthly_pay += weekly_pay * 4
 
+    # Add total weekly and monthly pay to the report
     report += f"Total Weekly Pay: ${total_weekly_pay:.2f}\n"
     report += f"Total Monthly Pay: ${total_monthly_pay:.2f}\n"
 
