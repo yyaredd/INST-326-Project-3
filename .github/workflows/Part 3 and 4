@@ -1,4 +1,3 @@
-
 # Part 3
 
 class Schedule:
@@ -43,37 +42,47 @@ class Schedule:
         if month == 12:
             return (datetime(year + 1, 1, 1) - datetime(year, month, 1)).days
         return (datetime(year, month + 1, 1) - datetime(year, month, 1)).days
-
 # Part 4
+    def generate_pay_report(self):
+        pay_report = {}
+        for date, shifts in self.shifts.items():
+            for shift, caregiver in shifts.items():
+                if caregiver and caregiver.pay_rate > 0:
+                    # Initialize pay report for each caregiver
+                    if caregiver.name not in pay_report:
+                        pay_report[caregiver.name] = {"hours": 0, "pay": 0}
+                    # Add hours and calculate pay for each shift
+                    pay_report[caregiver.name]["hours"] += 6
+                    pay_report[caregiver.name]["pay"] += 6 * caregiver.pay_rate
 
-def generate_pay_report(self):
-    pay_report = {}
-    for date, shifts in self.shifts.items():
-        for shift, caregiver in shifts.items():
-            if caregiver and caregiver.pay_rate > 0:
-                # Initialize pay report for each caregiver
-                if caregiver.name not in pay_report:
-                    pay_report[caregiver.name] = {"hours": 0, "pay": 0}
-                # Add hours and calculate pay for each shift
-                pay_report[caregiver.name]["hours"] += 6
-                pay_report[caregiver.name]["pay"] += 6 * caregiver.pay_rate
+        total_weekly_pay = 0
+        total_monthly_pay = 0
+        report = "Weekly Pay Report:\n"
+        report += "=" * 40 + "\n"
+        for caregiver, data in pay_report.items():
+            weekly_pay = data["pay"]
+            # Generate report for each caregiver
+            report += f"{caregiver}:\n"
+            report += f"  Hours: {data['hours']}\n"
+            report += f"  Weekly Pay: ${weekly_pay:.2f}\n"
+            report += "-" * 40 + "\n"
+            total_weekly_pay += weekly_pay
+            total_monthly_pay += weekly_pay * 4
 
-    total_weekly_pay = 0
-    total_monthly_pay = 0
-    report = "Weekly Pay Report:\n"
-    report += "=" * 40 + "\n"
-    for caregiver, data in pay_report.items():
-        weekly_pay = data["pay"]
-        # Generate report for each caregiver
-        report += f"{caregiver}:\n"
-        report += f"  Hours: {data['hours']}\n"
-        report += f"  Weekly Pay: ${weekly_pay:.2f}\n"
-        report += "-" * 40 + "\n"
-        total_weekly_pay += weekly_pay
-        total_monthly_pay += weekly_pay * 4
+        # Add total weekly and monthly pay to the report
+        report += f"Total Weekly Pay: ${total_weekly_pay:.2f}\n"
+        report += f"Total Monthly Pay: ${total_monthly_pay:.2f}\n"
 
-    # Add total weekly and monthly pay to the report
-    report += f"Total Weekly Pay: ${total_weekly_pay:.2f}\n"
-    report += f"Total Monthly Pay: ${total_monthly_pay:.2f}\n"
+        return report
 
-    return report
+# Create and display the schedule
+schedule = Schedule(11, 2024)
+schedule.create_schedule([caregiver1, caregiver2, caregiver3, caregiver4, caregiver5, caregiver6, caregiver7, caregiver8])
+
+# Display HTML calendar
+html_calendar = schedule.display_html_calendar()
+print(html_calendar)
+
+# Generate and display pay report
+pay_report = schedule.generate_pay_report()
+print(pay_report)
